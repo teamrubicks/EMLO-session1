@@ -3,16 +3,14 @@ import sys
 from torchvision import transforms
 
 
-device = "cuda"
+DEVICE = "cuda"
 pathname = os.path.dirname(sys.argv[0])
 path = os.path.abspath(pathname)
 
 # dimensions of our images.
 img_width, img_height = 150, 150
 
-top_model_weights_path = "pt_model.h5"
-# train_data_dir = os.path.join("data", "train")
-# validation_data_dir = os.path.join("data", "validation")
+
 TRAIN_DATA_DIR = "E:/TSAI/EMLO/EMLO-session1/data/train"
 VALID_DATA_DIR = "E:/TSAI/EMLO/EMLO-session1/data/validation"
 
@@ -29,9 +27,9 @@ cats_train_path = os.path.join(path, TRAIN_DATA_DIR, "cats")
 #         if os.path.isfile(os.path.join(cats_train_path, name))
 #     ]
 # )
-nb_validation_samples = 800
-epochs = 10
-batch_size = 10
+
+EPOCHS = 10
+BATCH_SIZE = 16
 
 
 all_transform = transforms.Compose(
@@ -41,3 +39,5 @@ all_transform = transforms.Compose(
         transforms.ToTensor(),
     ]
 )
+
+MODEL_SAVE_PATH = "E:/TSAI/EMLO/EMLO-session1/dognotdog.pt"
