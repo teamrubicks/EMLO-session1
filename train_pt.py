@@ -196,7 +196,7 @@ class Trial:
 
         train_metrics = pd.DataFrame(
             {
-                "mode": "train",
+                "state": "train",
                 "epoch": list(range(len(self.Record.train_loss))),
                 "loss": self.Record.train_loss,
                 "accuracy": self.Record.train_acc,
@@ -210,7 +210,7 @@ class Trial:
         )
         valid_metrics = pd.DataFrame(
             {
-                "mode": "valid",
+                "state": "valid",
                 "epoch": list(range(len(self.Record.valid_loss))),
                 "loss": self.Record.valid_loss,
                 "accuracy": self.Record.valid_acc,
