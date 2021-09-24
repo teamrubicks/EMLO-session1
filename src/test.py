@@ -1,7 +1,9 @@
 import pytest
 import pandas as pd
 import os
-import src.config as config
+import config
+
+print(config.METRICS_PATH)
 
 
 @pytest.fixture
@@ -18,7 +20,6 @@ def check_if_file_exists(_file):
 
 
 def test_data_existance():
-    files = os.listdir()
     # assert "data" not in files
     # assert "data.zip" not in files
     # assert "bottleneck_features_train.npy" not in files
