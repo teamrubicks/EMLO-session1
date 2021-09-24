@@ -97,4 +97,9 @@ Each test function name should have test  as the starting word in it.
  pytest -vv <filename>
 ```
 
-
+```
+Contributors:
+ - Abhijit G
+ - Anuraj D
+ - Chaitanya S A
+ ```
