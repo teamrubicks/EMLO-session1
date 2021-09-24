@@ -2,7 +2,7 @@ import os
 import sys
 
 
-DEVICE = "cuda"
+DEVICE = "cpu"
 # pathname = os.path.dirname(sys.argv[0])
 path = os.path.abspath("")
 sys.path.append(path)
