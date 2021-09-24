@@ -15,15 +15,15 @@ def test_model_existance():
 
 def test_train_model_accuracy():
     metrics = pd.read_csv('metrics.csv')
-    max_acc = metrics.loc[metrics.mode=='train','accuracy'].max()
+    max_acc = metrics.loc[metrics['mode']=='train','accuracy'].max()
     assert max_acc>= .70
 
 def test_train_notadog_accuracy():
     metrics = pd.read_csv('metrics.csv')
-    max_acc = metrics.loc[metrics.mode=='train','class0_accuracy'].max()
+    max_acc = metrics.loc[metrics['mode']=='train','class0_accuracy'].max()
     assert max_acc>= .70
 
 def test_train_dog_accuracy():
     metrics = pd.read_csv('metrics.csv')
-    max_acc = metrics.loc[metrics.mode=='train','class1_accuracy'].max()
+    max_acc = metrics.loc[metrics['mode']=='train','class1_accuracy'].max()
     assert max_acc>= .70
