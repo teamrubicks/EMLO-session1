@@ -20,12 +20,7 @@ def check_if_file_exists(_file):
 
 
 def test_data_existance():
-    # assert "data" not in files
-    # assert "data.zip" not in files
-    # assert "bottleneck_features_train.npy" not in files
-    # assert "bottleneck_features_train.npy.dvc" in files
-    # assert "bottleneck_features_valid.npy" not in files
-    # assert "bottleneck_features_valid.npy.dvc" in files
+
     assert not check_if_file_exists("data")
     assert not check_if_file_exists("bottleneck_features_train.npy")
     assert not check_if_file_exists("bottleneck_features_valid.npy")
@@ -40,8 +35,6 @@ def test_data_existance():
 def test_model_existance():
     assert not check_if_file_exists("dognotdog.pt")
     assert check_if_file_exists("dognotdog.pt.dvc")
-    # assert "dognotdog.pt" not in files
-    # assert "dognotdog.pt.dvc" in files
 
 
 def test_train_model_accuracy(metrics):

@@ -10,34 +10,25 @@ sys.path.append(path)
 img_width, img_height = 150, 150
 
 
-TRAIN_DATA_DIR = "E:/TSAI/EMLO/EMLO-session1/data/train"
-VALID_DATA_DIR = "E:/TSAI/EMLO/EMLO-session1/data/validation"
+TRAIN_DATA_DIR = os.path.join(path, "data", "train")
+VALID_DATA_DIR = os.path.join(path, "data", "validation")
 
 TRAIN_FEATURES = os.path.join(
     path, "bottleneck_features", "bottleneck_features_train.npy"
 )
-# (
-#     "E:/TSAI/EMLO/EMLO-session1/bottleneck_features/bottleneck_features_train.npy"
-# )
+
 VALID_FEATURES = os.path.join(
     path, "bottleneck_features", "bottleneck_features_valid.npy"
 )
-# (
-#     "E:/TSAI/EMLO/EMLO-session1/bottleneck_features/bottleneck_features_valid.npy"
-# )
 
-TRAIN_LABELS = os.path.join(
-    path, "bottleneck_features", "train_labels.npy"
-)  # "E:/TSAI/EMLO/EMLO-session1/bottleneck_features/train_labels.npy"
+
+TRAIN_LABELS = os.path.join(path, "bottleneck_features", "train_labels.npy")
 VALID_LABELS = os.path.join(path, "bottleneck_features", "valid_labels.npy")
-# "E:/TSAI/EMLO/EMLO-session1/bottleneck_features/valid_labels.npy"
 
 
 EPOCHS = 10
 BATCH_SIZE = 16
 
 
-MODEL_SAVE_PATH = os.path.join(
-    path, "models", "dognotdog.pt"
-)  # "E:/TSAI/EMLO/EMLO-session1/models/dognotdog.pt"
-METRICS_PATH = os.path.join(path, "metrics", "metrics.csv")  # "metrics/metrics.csv"
+MODEL_SAVE_PATH = os.path.join(path, "models", "dognotdog.pt")
+METRICS_PATH = os.path.join(path, "metrics", "metrics.csv")
