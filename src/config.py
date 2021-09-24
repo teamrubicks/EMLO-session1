@@ -1,6 +1,5 @@
 import os
 import sys
-from torchvision import transforms
 
 
 DEVICE = "cuda"
@@ -37,14 +36,6 @@ VALID_LABELS = os.path.join(path, "bottleneck_features", "valid_labels.npy")
 EPOCHS = 10
 BATCH_SIZE = 16
 
-
-all_transform = transforms.Compose(
-    [
-        transforms.Resize((150, 150)),
-        transforms.Grayscale(num_output_channels=3),
-        transforms.ToTensor(),
-    ]
-)
 
 MODEL_SAVE_PATH = os.path.join(
     path, "models", "dognotdog.pt"

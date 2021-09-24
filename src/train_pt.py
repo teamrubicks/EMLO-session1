@@ -9,6 +9,7 @@ from tqdm import tqdm
 from functools import partial
 from feature_loader import DatasetFromArray
 from model import DogNotDog
+import transforms
 
 tqdm = partial(tqdm, leave=True, position=0)
 
@@ -29,10 +30,10 @@ def get_features_from_images(model, dataloader):
 
 def extract_features(save=False):
     train_data = datasets.ImageFolder(
-        config.TRAIN_DATA_DIR, transform=config.all_transform
+        config.TRAIN_DATA_DIR, transform=transforms.all_transform
     )
     valid_data = datasets.ImageFolder(
-        config.VALID_DATA_DIR, transform=config.all_transform
+        config.VALID_DATA_DIR, transform=transforms.all_transform
     )
     train_labels = [lab for _, (_, lab) in enumerate(train_data)]
     valid_labels = [lab for _, (_, lab) in enumerate(valid_data)]
