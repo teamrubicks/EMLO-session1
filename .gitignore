@@ -3,4 +3,3 @@
 *.npy
 __pycache__/*
 .vscode/*
-/dognotdog.pt

@@ -3,7 +3,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchvision import models, datasets
 import numpy as np
-import config
+import config as config
 import torch.nn.functional as F
 from tqdm import tqdm
 from functools import partial
@@ -260,5 +260,5 @@ if __name__ == "__main__":
 
     run.run()
     run.log_metrics()
-    # run.save_trial()
+    run.save_trial()
     print("Done!")
