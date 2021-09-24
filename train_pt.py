@@ -56,20 +56,34 @@ def extract_features(save=False):
 
 
 class Record:
-    def __init__(self, train_acc, train_loss, valid_acc, valid_loss):
+    def __init__(
+        self,
+        train_acc,
+        train_loss,
+        valid_acc,
+        valid_loss,
+        train_classwise_accuracy=None,
+        valid_classwise_accuracy=None,
+    ):
         self.train_acc = train_acc
         self.train_loss = train_loss
         self.valid_acc = valid_acc
         self.valid_loss = valid_loss
+        self.train_classwise_accuracy = train_classwise_accuracy
+        self.valid_classwise_accuracy = valid_classwise_accuracy
 
 
 class Trainer:
-    def __init__(self, model):
+    def __init__(self, model, per_class_accuracy=False):
+        self.per_class_accuracy = per_class_accuracy
         self.model = model
         self.train_acc = []
         self.valid_acc = []
         self.train_loss = []
         self.valid_loss = []
+        self.train_classwise_accuracy = [] if per_class_accuracy else None
+
+        self.valid_classwise_accuracy = [] if per_class_accuracy else None
 
     def train(
         self,
@@ -87,62 +101,88 @@ class Trainer:
             self._evaluate(valid_loader, loss_fn, device)
             if scheduler:
                 scheduler.step()
-        return Record(self.train_acc, self.train_loss, self.valid_acc, self.valid_loss)
+        return Record(
+            self.train_acc,
+            self.train_loss,
+            self.valid_acc,
+            self.valid_loss,
+            self.train_classwise_accuracy,
+            self.valid_classwise_accuracy,
+        )
 
     def _train(self, train_loader, optimizer, loss_fn, device=config.DEVICE):
         self.model.train()
         correct = 0
         train_loss = 0
+        conf_mat = np.zeros((2, 2))
+        all_target_labels = []
+        all_pred_labels = []
         for _, data in tqdm(enumerate(train_loader), total=len(train_loader)):
-            data, target = data["data"].to(device), data["target"].to(device)
+            target = data["target"]
+            all_target_labels.extend(target.numpy())
+            data, target = data["data"].to(device), target.to(device)
             optimizer.zero_grad()
 
             optimizer.zero_grad()
             output = self.model(data)
             loss = loss_fn(output, target)
-            train_loss += loss.detach()
+            train_loss += loss.detach().item()
             loss.backward()
             optimizer.step()
 
             pred = output.argmax(dim=1, keepdim=True)
+            all_pred_labels.extend(pred.cpu().numpy())
             correct += pred.eq(target.view_as(pred)).sum().item()
 
+        for (i, j) in zip(all_target_labels, all_pred_labels):
+            conf_mat[i, j] += 1
         self.train_loss.append(train_loss * 1.0 / len(train_loader.dataset))
-        self.train_acc.append(train_loss * 100.0 / len(train_loader.dataset))
+        self.train_acc.append(correct * 100.0 / len(train_loader.dataset))
+        class0_accuracy = conf_mat[0, 0] / (conf_mat[0, 0] + conf_mat[0, 1])
+        class1_accuracy = conf_mat[1, 1] / (conf_mat[1, 1] + conf_mat[1, 0])
+        self.train_classwise_accuracy.append((class0_accuracy, class1_accuracy))
         print(
-            f" Training loss = {train_loss * 1.0 / len(train_loader.dataset)}, Training Accuracy : {100.0 * correct / len(train_loader.dataset)}"
+            f"Avg Train loss = {train_loss * 1.0 / len(train_loader.dataset)}, Train Accuracy : {100.0 * correct / len(train_loader.dataset)} Class 1 accuracy: {class1_accuracy}, Class 0 accuracy : {class0_accuracy}"
         )
 
     def _evaluate(self, valid_loader, loss_fn, device=config.DEVICE):
         self.model.eval()
         correct = 0
         valid_loss = 0
+        conf_mat = np.zeros((2, 2))
+        all_target_labels = []
+        all_pred_labels = []
         with torch.no_grad():
             for _, data in tqdm(enumerate(valid_loader), total=len(valid_loader)):
-                data, target = data["data"].to(config.DEVICE), data["target"].to(
-                    config.DEVICE
-                )
+                target = data["target"]
+                all_target_labels.extend(target.numpy())
+                data, target = data["data"].to(config.DEVICE), target.to(config.DEVICE)
                 output = self.model(data)
                 valid_loss += loss_fn(output, target, reduction="sum").item()
                 pred = output.argmax(dim=1, keepdims=True)
+                all_pred_labels.extend(pred.cpu().numpy())
                 correct += pred.eq(target.view_as(pred)).sum().item()
 
+        for (i, j) in zip(all_target_labels, all_pred_labels):
+            conf_mat[i, j] += 1
         valid_loss /= len(valid_loader.dataset) * 1.0
         self.valid_loss.append(valid_loss)
         self.valid_acc.append(100.0 * correct / len(valid_loader.dataset))
-
+        class0_accuracy = conf_mat[0, 0] / (conf_mat[0, 0] + conf_mat[0, 1])
+        class1_accuracy = conf_mat[1, 1] / (conf_mat[1, 1] + conf_mat[1, 0])
+        self.valid_classwise_accuracy.append((class0_accuracy, class1_accuracy))
         print(
-            f" Test loss = {valid_loss}, Test Accuracy : {100.0 * correct / len(valid_loader.dataset)}"
+            f"Avg Valid loss = {valid_loss}, Valid Accuracy : {100.0 * correct / len(valid_loader.dataset)} Class 1 accuracy: { class1_accuracy}, Class 0 accuracy : {class0_accuracy}"
         )
 
 
 class Trial:
-    def __init__(self, name, model, args):
+    def __init__(self, name, model, per_class_accuracy, args):
         self.name = name
         self.model = model
         self.args = args
         self.Record = Record
-        self.Trainer = Trainer(model)
+        self.Trainer = Trainer(model, per_class_accuracy=per_class_accuracy)
 
     def run(self):
         self.Record = self.Trainer.train(**self.args)
@@ -150,6 +190,40 @@ class Trial:
     def save_trial(self):
         state_dict = self.model.state_dict()
         torch.save(state_dict, config.MODEL_SAVE_PATH)
+
+    def log_metrics(self):
+        import pandas as pd
+
+        train_metrics = pd.DataFrame(
+            {
+                "mode": "train",
+                "epoch": list(range(len(self.Record.train_loss))),
+                "loss": self.Record.train_loss,
+                "accuracy": self.Record.train_acc,
+                "class0_accuracy": [
+                    rec[0] for rec in self.Record.train_classwise_accuracy
+                ],
+                "class1_accuracy": [
+                    rec[1] for rec in self.Record.train_classwise_accuracy
+                ],
+            }
+        )
+        valid_metrics = pd.DataFrame(
+            {
+                "mode": "valid",
+                "epoch": list(range(len(self.Record.valid_loss))),
+                "loss": self.Record.valid_loss,
+                "accuracy": self.Record.valid_acc,
+                "class0_accuracy": [
+                    rec[0] for rec in self.Record.valid_classwise_accuracy
+                ],
+                "class1_accuracy": [
+                    rec[1] for rec in self.Record.valid_classwise_accuracy
+                ],
+            }
+        )
+        combined = pd.concat([train_metrics, valid_metrics])
+        combined.to_csv(config.METRICS_PATH, index=False)
 
 
 if __name__ == "__main__":
@@ -173,6 +247,7 @@ if __name__ == "__main__":
     run = Trial(
         name="First Run",
         model=model,
+        per_class_accuracy=True,
         args={
             "epochs": config.EPOCHS,
             "train_loader": train_loader,
@@ -184,5 +259,6 @@ if __name__ == "__main__":
     )
 
     run.run()
+    run.log_metrics()
     # run.save_trial()
     print("Done!")

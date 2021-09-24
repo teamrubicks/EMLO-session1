@@ -41,3 +41,4 @@ all_transform = transforms.Compose(
 )
 
 MODEL_SAVE_PATH = "E:/TSAI/EMLO/EMLO-session1/dognotdog.pt"
+METRICS_PATH = "metrics.csv"
