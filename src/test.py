@@ -33,8 +33,8 @@ def test_data_existance():
     assert not check_if_file_exists("valid_features.npy")
     assert check_if_file_exists("bottleneck_features_train.npy.dvc")
     assert check_if_file_exists("bottleneck_features_valid.npy.dvc")
-    assert check_if_file_exists("train_features.npy.dvc")
-    assert check_if_file_exists("valid_features.npy.dvc")
+    assert check_if_file_exists("train_labels.npy.dvc")
+    assert check_if_file_exists("valid_labels.npy.dvc")
 
 
 def test_model_existance():
