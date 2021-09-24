@@ -31,6 +31,24 @@ def test_train_notadog_accuracy():
     assert max_acc >= 0.70
 
 
+def test_train_dog_accuracy():
+    metrics = pd.read_csv("metrics.csv")
+    max_acc = metrics[metrics.state == "train"]["class1_accuracy"].max()
+    assert max_acc >= 0.70
+
+
+def test_valid_model_accuracy():
+    metrics = pd.read_csv("metrics.csv")
+    max_acc = metrics[metrics.state == "valid"]["accuracy"].max()
+    assert max_acc >= 0.70
+
+
+def test_valid_notadog_accuracy():
+    metrics = pd.read_csv("metrics.csv")
+    max_acc = metrics[metrics.state == "valid"]["class0_accuracy"].max()
+    assert max_acc >= 0.70
+
+
 def test_valid_dog_accuracy():
     metrics = pd.read_csv("metrics.csv")
     max_acc = metrics[metrics.state == "valid"]["class1_accuracy"].max()
