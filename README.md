@@ -100,6 +100,6 @@ Each test function name should have test  as the starting word in it.
 ```
 Contributors:
  - Abhijit G
- - Anuraj D
+ - Anurag D
  - Chaitanya S A
  ```
