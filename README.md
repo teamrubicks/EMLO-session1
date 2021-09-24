@@ -75,19 +75,26 @@ git tag -a "v2.0" -m "model v2.0, 2000 images"
 - Create functions to evaluate multiple test cases.  such as:
 If you want to check if a file exists in the working directory
 ```
-def test_existance(filename):
-    files = os.listdir()
-    assert filename not in files
+def check_if_file_exists(_file):
+    path = config.path
+    for _, _, files in os.walk(path):
+        if _file in files:
+            return True
+    return False
+    
+def test_model_existance():
+    assert not check_if_file_exists("dognotdog.pt")
+    assert check_if_file_exists("dognotdog.pt.dvc")
 ```
 Each test function name should have test  as the starting word in it. 
 
 
 ### How to execute on local?
 - Create the above script into a folder with the dependencies
-- Then Run on this from the command line. '-v' is to make the logs verbose
+- Then Run on this from the command line. '-vv' is to make the logs verbose
 
 ```
- pytest -v <filename>
+ pytest -vv <filename>
 ```
 
 
